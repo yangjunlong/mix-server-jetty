@@ -1,0 +1,36 @@
+{
+    "name": "xpage-server-jetty",
+    "description": "xpage-server-jetty",
+    "version": "0.0.1",
+    "main": "jetty.js",
+    "scripts": {
+        "test": "echo \\\"Error: no test specified\\\" && exit 1"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/yangjunlong/xpage-server-jetty.git"
+    },
+    "dependencies": {},
+    "keywords": [
+        "xpage",
+        "fis",
+        "server",
+        "jetty"
+    ],
+    "author": {
+        "name": "sobird",
+        "email": "sobird@126.com"
+    },
+    "licenses": [
+        {
+            "type": "MIT",
+            "url": "https://github.com/yangjunlong/xpage-server-jetty/blob/master/LICENSE"
+        }
+    ],
+    "bugs": {
+        "url": "https://github.com/yangjunlong/xpage-server-jetty/issues"
+    },
+    "readme": "",
+    "readmeFilename": "README.md"
+    "homepage": "https://github.com/yangjunlong/xpage-server-jetty#readme"
+}
