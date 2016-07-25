@@ -1,2 +1,2 @@
-# xpage-server-jetty
-xpage-server-jetty
+# mix-server-jetty
+mix-server-jetty
