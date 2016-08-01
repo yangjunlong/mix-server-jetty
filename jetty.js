@@ -1,7 +1,9 @@
 /**
- * xpage-server-jetty
- *
+ * mix-server-jetty
  * a jetty server
+ * @usage
+ * var server = mix.require('server', 'jetty');
+ * server.start();
  *
  * @see  https://github.com/fex-team/fis-command-server/blob/master/lib/java.js
  * 
@@ -12,29 +14,36 @@
 var child_process = require('child_process');
 var spawn = child_process.spawn;
 
-var jetty = module.exports;
+// jetty server extends mix.server
+var jetty = module.exports = new (Object.derive(function(){}, mix.server));
 
 var jetty_jar = './jetty.jar';
 
 // start jetty server
 jetty.start = function(option, callback) {
+    var that = this;
+    console.log(option);
+
 	var timeout = Math.max(option.timeout * 1000, 5000); 
 	delete option.timeout;
 
-	var errMsg = 'xpage-server fails to start at port [' + option.port + '], error: ';
+	var errMsg = 'mix-server fails to start at port [' + option.port + '], error: ';
 
 	var args = [
         '-Dorg.apache.jasper.compiler.disablejsr199=true',
-        //'-Djava.nio.channels.spi.SelectorProvider=sun.nio.ch.PollSelectorProvider',
+        // '-Djava.nio.channels.spi.SelectorProvider=sun.nio.ch.PollSelectorProvider',
         '-jar', jetty_jar
     ];
 
     var ready = false;
     var log = '';
 
+    fis.util.map(option, function(key, value){
+        args.push('--' + key, String(value));
+    });
+    
     // start child process (java&jetty)
     var server = spawn('java', args, { cwd : __dirname, detached: true });
-
 
     // start callback
     server.stderr.on('data', function(chunk){
@@ -54,7 +63,8 @@ jetty.start = function(option, callback) {
 
             setTimeout(function(){
                 var protocol = option.https ? "https" : "http"; 
-                xpage.server.open(protocol + '://127.0.0.1' + (option.port == 80 ? '/' : ':' + option.port + '/'), function(){
+                console.log(that.open);
+                that.open(protocol + '://127.0.0.1' + (option.port == 80 ? '/' : ':' + option.port + '/'), function(){
                     process.exit();
                 });
             }, 200);
@@ -88,7 +98,8 @@ jetty.start = function(option, callback) {
 
     server.unref();
 
-    fis.util.write(xpage.server.getPidFile(), server.pid);
+    // set server pid (you must call this method)
+    that.setPid(server.pid);
 
     // start server timeout error
     setTimeout(function(){
