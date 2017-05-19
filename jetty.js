@@ -5,7 +5,7 @@
  * var server = mix.require('server', 'jetty');
  * server.start();
  *
- * @see  https://github.com/fex-team/fis-command-server/blob/master/lib/java.js
+ * @see  https://github.com/fex-team/mix-command-server/blob/master/lib/java.js
  * 
  * @author  Yang,junlong at 2016-03-17 18:42:17 build.
  * @version $Id$
@@ -15,28 +15,49 @@ var child_process = require('child_process');
 var spawn = child_process.spawn;
 
 // jetty server extends mix.server
-var jetty = module.exports = new (Object.derive(function(){}, mix.server));
+var jetty = module.exports = new (mix.server.derive(function(){
 
-var jetty_jar = './jetty.jar';
+}, {
+    start: function(options, callback) {
+        var type = options.type;
 
-// start jetty server
-jetty.start = function (options, callback) {
-    var type = options.type;
-
-    switch (type) {
-        case 'php':
-            startPHP(options, callback);
-            break;
-        case 'java':
-            startJava(options, callback);
-            break;
-        default:
-            startJava(options, callback);
-            break;
+        switch (type) {
+            case 'php':
+                this.startPHP(options, callback);
+                break;
+            case 'java':
+                this.startJava(options, callback);
+                break;
+            default:
+                this.startJava(options, callback);
+                break;
+        }
+    },
+    startPHP: function(options, callback) {
+        var that = this;
+        that.checkJavaEnable(options, function(java, options) {
+            if (java) {
+                that.checkPHPEnable(options, function(php, options) {
+                    if (php) {
+                        start(options, callback);
+                    }
+                });
+            }
+        })
+    },
+    startJava: function(options, callback) {
+        this.checkJavaEnable(options, function(java, options) {
+            if (java) {
+                // java
+                delete options.php_exec;
+                start(options, callback);
+            }
+        })
     }
-}
+}));
 
 function start (options, callback) {
+    var jetty_jar = './jetty.jar';
     var timeout = Math.max(options.timeout * 1000, 5000); 
     delete options.timeout;
 
@@ -51,7 +72,7 @@ function start (options, callback) {
     var ready = false;
     var log = '';
 
-    fis.util.map(options, function(key, value){
+    mix.util.map(options, function(key, value){
         args.push('--' + key, String(value));
     });
     
@@ -97,7 +118,7 @@ function start (options, callback) {
                 errMsg += 'unknown';
             }
             console.log(log);
-            fis.log.error(errMsg);
+            mix.log.error(errMsg);
         }
     });
 
@@ -108,7 +129,7 @@ function start (options, callback) {
         } catch(e){
 
         }
-        fis.log.error(err);
+        mix.log.error(err);
     });
 
     server.unref();
@@ -120,7 +141,7 @@ function start (options, callback) {
     setTimeout(function(){
         process.stdout.write(' fail\n');
         if(log) console.log(log);
-        fis.log.error(errMsg + 'timeout');
+        mix.log.error(errMsg + 'timeout');
     }, timeout);
 }
 
