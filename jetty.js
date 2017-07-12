@@ -1,11 +1,12 @@
 /**
  * mix-server-jetty (a jetty server)
  * this is default server
+ * 
  * @usage
  * var server = mix.require('server', 'jetty');
  * server.start();
  *
- * @see  https://github.com/fex-team/mix-command-server/blob/master/lib/java.js
+ * @see  https://github.com/fex-team/fis-command-server/blob/master/lib/java.js
  * 
  * @author  Yang,junlong at 2016-03-17 18:42:17 build.
  * @version $Id$
@@ -15,18 +16,15 @@ var child_process = require('child_process');
 var spawn = child_process.spawn;
 
 // jetty server extends mix.server
-var jetty = module.exports = new (mix.server.derive(function(){
-
-}, {
+var jetty = module.exports = mix.server.derive(function(options) {
+    this.options = options;
+},{
     start: function(options, callback) {
         var type = options.type;
 
         switch (type) {
             case 'php':
                 this.startPHP(options, callback);
-                break;
-            case 'java':
-                this.startJava(options, callback);
                 break;
             default:
                 this.startJava(options, callback);
@@ -54,7 +52,7 @@ var jetty = module.exports = new (mix.server.derive(function(){
             }
         })
     }
-}));
+}).factory();
 
 function start (options, callback) {
     var jetty_jar = './jetty.jar';
@@ -72,7 +70,7 @@ function start (options, callback) {
     var ready = false;
     var log = '';
 
-    mix.util.map(options, function(key, value){
+    mix.util.map(options, function(value, key){
         args.push('--' + key, String(value));
     });
     
@@ -88,21 +86,11 @@ function start (options, callback) {
         chunk = chunk.toString('utf8');
         log += chunk;
         process.stdout.write('.');
-        if(chunk.indexOf('Started SelectChannelConnector@') > 0 
-                || chunk.indexOf('Started SslSocketConnector@') > 0){
+        if(chunk.indexOf('Started SelectChannelConnector@') > 0 || chunk.indexOf('Started SslSocketConnector@') > 0){
             ready = true;
             process.stdout.write(' at port [' + options.port + ']\n');
 
-            callback && callback(chunk);
-
-            setTimeout(function(){
-                var protocol = options.https ? "https" : "http"; 
-                jetty.open(protocol + '://127.0.0.1' + (options.port == 80 ? '/' : ':' + options.port + '/'), function(){
-                    process.exit();
-                });
-            }, 200);
-
-            jetty.option(options);
+            callback && callback(server, options);
 
         } else if(chunk.indexOf('Exception') > 0) {
             process.stdout.write(' fail\n');
@@ -134,35 +122,10 @@ function start (options, callback) {
 
     server.unref();
 
-    // set server pid (you must call this method)
-    jetty.setPid(server.pid);
-
     // start server timeout error
     setTimeout(function(){
         process.stdout.write(' fail\n');
         if(log) console.log(log);
         mix.log.error(errMsg + 'timeout');
     }, timeout);
-}
-
-function startPHP (options, callback) {
-    jetty.checkJavaEnable(options, function(java, options) {
-        if (java) {
-            jetty.checkPHPEnable(options, function(php, options) {
-                if (php) {
-                    start(options, callback);
-                }
-            });
-        }
-    })
-}
-
-function startJava(options, callback) {
-    jetty.checkJavaEnable(options, function(java, options) {
-        if (java) {
-            // java
-            delete options.php_exec;
-            start(options, callback);
-        }
-    })
 }
