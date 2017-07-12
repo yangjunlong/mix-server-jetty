@@ -1,14 +1,14 @@
 {
     "name": "mix-server-jetty",
     "description": "mix-server-jetty",
-    "version": "0.0.4",
+    "version": "0.0.5",
     "main": "jetty.js",
     "scripts": {
         "test": "echo \\\"Error: no test specified\\\" && exit 1"
     },
     "repository": {
         "type": "git",
-        "url": "http://git.n.xiaomi.com/mix/mix-server-jetty.git"
+        "url": "https://github.com/yangjunlong/mix-server-jetty.git"
     },
     "dependencies": {},
     "keywords": [
@@ -24,13 +24,13 @@
     "licenses": [
         {
             "type": "MIT",
-            "url": "http://git.n.xiaomi.com/mix/mix-server-jetty/blob/master/LICENSE"
+            "url": "https://github.com/yangjunlong/mix-server-jetty/blob/master/LICENSE"
         }
     ],
     "bugs": {
-        "url": "http://git.n.xiaomi.com/mix/mix-server-jetty/issues"
+        "url": "https://github.com/yangjunlong/mix-server-jetty/issues"
     },
     "readme": "",
     "readmeFilename": "README.md",
-    "homepage": "http://git.n.xiaomi.com/mix/mix-server-jetty#readme"
+    "homepage": "https://github.com/yangjunlong/mix-server-jetty#readme"
 }
